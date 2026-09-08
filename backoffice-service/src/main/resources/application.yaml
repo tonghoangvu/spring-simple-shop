@@ -1,3 +1,22 @@
+# Application
 spring:
-  application:
-    name: backoffice-service
+  config:
+    import:
+      - classpath:application-base.yaml
+  profiles:
+    active: ${ACTIVE_PROFILES:}
+server:
+  port: ${SERVICE_PORT:8080}
+
+# Logging
+logging:
+  level:
+    app: ${LOG_LEVEL_APP:debug}
+    root: ${LOG_LEVEL_ROOT:info}
+
+# Springdoc OpenAPI
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:true}

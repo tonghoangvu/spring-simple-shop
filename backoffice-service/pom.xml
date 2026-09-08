@@ -13,7 +13,7 @@
   <groupId>io.github.tonghoangvu.springsimpleshop</groupId>
   <artifactId>backoffice-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name/>
+  <name>backoffice-service</name>
   <description/>
   <url/>
   <licenses>

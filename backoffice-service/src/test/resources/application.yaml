@@ -1,0 +1,8 @@
+# Application
+spring:
+  config:
+    import:
+      - classpath:application-base.yaml
+  profiles:
+    active:
+      - test # default to unit test profile

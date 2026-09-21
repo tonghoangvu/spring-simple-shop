@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +41,26 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
     ProblemDetail body = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     return handleExceptionInternal(
         ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<Object> handleAccessDeniedException(
+      AccessDeniedException ex, WebRequest request) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Access denied exception: " + ex.getMessage(), ex);
+    }
+    ProblemDetail body = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+    return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Object> handleAuthenticationException(
+      AuthenticationException ex, WebRequest request) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Authentication exception: " + ex.getMessage(), ex);
+    }
+    ProblemDetail body = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+    return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
   }
 
   @ExceptionHandler(ApplicationException.class)

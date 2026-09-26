@@ -1,0 +1,54 @@
+# Application
+spring:
+  application:
+    name: "@project.name@"
+    version: "@project.version@"
+  jackson:
+    default-property-inclusion: always
+    deserialization:
+      fail-on-unknown-properties: false
+    mapper:
+      sort-properties-alphabetically: false
+  mvc:
+    static-path-pattern: /static/**
+  web:
+    error:
+      whitelabel:
+        enabled: false
+server:
+  shutdown: graceful
+
+# Logging
+logging:
+  group:
+    app:
+      - io.github.tonghoangvu.springsimpleshop
+  level:
+    app: debug
+    root: info
+
+# Telemetry
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    jackson:
+      isolated-json-mapper: false
+    web:
+      exposure:
+        include:
+          - health
+
+# Springdoc OpenAPI
+springdoc:
+  api-docs:
+    enabled: true
+  show-actuator: true
+  swagger-ui:
+    enabled: true
+    operations-sorter: alpha
+    persist-authorization: true
+    tags-sorter: alpha
+    try-it-out-enabled: true

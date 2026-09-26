@@ -3,3 +3,6 @@
 .vscode/
 .DS_Store
 *.env*
+
+### Spring Boot ###
+**/src/main/resources/application-local.yaml

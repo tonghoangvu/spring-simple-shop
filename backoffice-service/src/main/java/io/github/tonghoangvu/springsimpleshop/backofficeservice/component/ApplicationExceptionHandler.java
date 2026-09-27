@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.time.OffsetDateTime;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -74,10 +75,10 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
+      @NonNull MethodArgumentNotValidException ex,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode status,
+      @NonNull WebRequest request) {
     ProblemDetail body = ex.updateAndGetBody(getMessageSource(), LocaleContextHolder.getLocale());
     body.setProperty("errors", ValidationUtils.extractErrorMessages(ex));
     return handleExceptionInternal(ex, body, headers, status, request);
@@ -85,18 +86,21 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 
   @Override
   protected ResponseEntity<Object> handleHandlerMethodValidationException(
-      HandlerMethodValidationException ex,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
+      @NonNull HandlerMethodValidationException ex,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode status,
+      @NonNull WebRequest request) {
     ProblemDetail body = ex.updateAndGetBody(getMessageSource(), LocaleContextHolder.getLocale());
     body.setProperty("errors", ValidationUtils.extractErrorMessages(ex));
     return handleExceptionInternal(ex, body, headers, status, request);
   }
 
   @Override
-  protected ResponseEntity<Object> createResponseEntity(
-      Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+  protected @NonNull ResponseEntity<Object> createResponseEntity(
+      Object body,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode statusCode,
+      @NonNull WebRequest request) {
     if (body instanceof ProblemDetail problemDetail) {
       enrichResponseBody(problemDetail, statusCode);
     } else if (body != null && logger.isWarnEnabled()) {

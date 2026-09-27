@@ -2,6 +2,7 @@ package io.github.tonghoangvu.springsimpleshop.backofficeservice.model.exception
 
 import io.github.tonghoangvu.springsimpleshop.backofficeservice.model.enums.ErrorCode;
 import java.util.Locale;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -14,9 +15,12 @@ public abstract class ApplicationException extends ResponseStatusException {
   }
 
   @Override
-  public ProblemDetail updateAndGetBody(MessageSource messageSource, Locale locale) {
+  public @NonNull ProblemDetail updateAndGetBody(
+      MessageSource messageSource, @NonNull Locale locale) {
     super.updateAndGetBody(messageSource, locale);
-    getBody().setProperty("code", getErrorCode().getCode());
+    if (getErrorCode() != null) {
+      getBody().setProperty("code", getErrorCode().getCode());
+    }
     return getBody();
   }
 

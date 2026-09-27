@@ -3,6 +3,7 @@ package io.github.tonghoangvu.springsimpleshop.backofficeservice.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,7 +24,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class SecurityConfiguration {
 
   private static final String[] UNAUTHENTICATED_PATHS = {
+    "/",
     "/actuator/**",
+    "/error",
     "/static/**",
     "/swagger-ui.html",
     "/swagger-ui/**",
@@ -62,9 +65,9 @@ public class SecurityConfiguration {
 
     @Override
     public void commence(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        AuthenticationException authException) {
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull AuthenticationException authException) {
       handlerExceptionResolver.resolveException(request, response, null, authException);
     }
   }
@@ -76,9 +79,9 @@ public class SecurityConfiguration {
 
     @Override
     public void handle(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        AccessDeniedException accessDeniedException) {
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull AccessDeniedException accessDeniedException) {
       handlerExceptionResolver.resolveException(request, response, null, accessDeniedException);
     }
   }

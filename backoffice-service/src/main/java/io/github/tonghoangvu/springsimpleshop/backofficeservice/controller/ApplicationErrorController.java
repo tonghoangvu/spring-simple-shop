@@ -1,4 +1,4 @@
-package io.github.tonghoangvu.springsimpleshop.backofficeservice.component;
+package io.github.tonghoangvu.springsimpleshop.backofficeservice.controller;
 
 import io.github.tonghoangvu.springsimpleshop.backofficeservice.model.enums.ErrorCode;
 import io.swagger.v3.oas.annotations.Hidden;

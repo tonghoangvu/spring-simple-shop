@@ -6,3 +6,6 @@
 
 ### Spring Boot ###
 **/src/main/resources/application-local.yaml
+
+### Docker Compose ###
+**/docker-compose.override.yaml

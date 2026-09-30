@@ -1,0 +1,19 @@
+name: spring-simple-shop
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-spring_simple_shop}
+      POSTGRES_USER: ${POSTGRES_USER:-spring_simple_shop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?} # required
+    ports:
+      - "5432:5432"
+    volumes:
+      - ".local/postgres:/var/lib/postgresql" # since Postgres 18
+  redis:
+    image: redis:8-alpine
+    command: redis-server --save 60 1 --requirepass "${REDIS_PASSWORD:-}" # optional, default empty
+    ports:
+      - "6379:6379"
+    volumes:
+      - ".local/redis:/data"

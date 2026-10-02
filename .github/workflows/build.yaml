@@ -1,4 +1,5 @@
 name: Build
+run-name: Build project at ${{ inputs.project-path }}
 on:
   workflow_call:
     inputs: &workflow_call_inputs

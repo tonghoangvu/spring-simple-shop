@@ -1,0 +1,36 @@
+name: Build
+on:
+  workflow_call:
+    inputs: &workflow_call_inputs
+      project-path:
+        description: Path to the project directory
+        required: true
+        type: string
+      maven-build:
+        description: Whether to run Maven build
+        type: boolean
+  workflow_dispatch:
+    inputs: *workflow_call_inputs
+defaults:
+  run:
+    working-directory: ${{ inputs.project-path }}
+permissions:
+  contents: read
+
+jobs:
+  maven-build:
+    name: Maven Build
+    if: ${{ inputs.maven-build }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Java JDK
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: ${{ inputs.project-path }}/pom.xml
+      - name: Run Maven build
+        run: mvn clean verify --batch-mode --no-transfer-progress

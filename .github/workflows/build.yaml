@@ -11,9 +11,6 @@ on:
         type: boolean
   workflow_dispatch:
     inputs: *workflow_call_inputs
-defaults:
-  run:
-    working-directory: ${{ inputs.project-path }}
 permissions:
   contents: read
 
@@ -22,6 +19,9 @@ jobs:
     name: Maven Build
     if: ${{ inputs.maven-build }}
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.project-path }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1

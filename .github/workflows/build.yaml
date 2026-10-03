@@ -10,6 +10,13 @@ on:
       maven-build:
         description: Whether to run Maven build
         type: boolean
+      upload-artifact:
+        description: Whether to upload the build artifact
+        type: boolean
+    outputs:
+      maven-build-artifact-id:
+        description: Artifact ID of Maven build
+        value: ${{ jobs.maven-build.outputs.artifact-id }}
   workflow_dispatch:
     inputs: *workflow_call_inputs
 permissions:
@@ -35,3 +42,14 @@ jobs:
           cache-dependency-path: ${{ inputs.project-path }}/pom.xml
       - name: Run Maven build
         run: mvn clean verify --batch-mode --no-transfer-progress
+      - name: Upload artifact
+        id: upload-artifact
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: maven-build-artifact
+          path: target
+          if-no-files-found: error
+          overwrite: true
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}

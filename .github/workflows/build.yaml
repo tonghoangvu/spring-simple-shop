@@ -48,8 +48,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: maven-build-artifact
-          path: |
-            ${{ inputs.project-path }}/target
+          path: ${{ inputs.project-path }}/**/target # use wildcard to preserve directory structure
           if-no-files-found: error
           overwrite: true
     outputs:

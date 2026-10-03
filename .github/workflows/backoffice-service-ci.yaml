@@ -20,6 +20,7 @@ jobs:
     with:
       project-path: backoffice-service
       maven-build: true
+      upload-artifact: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
 
   docker-build-push:
     name: Docker Build and Push

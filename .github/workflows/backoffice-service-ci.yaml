@@ -1,0 +1,17 @@
+name: Backoffice Service CI
+on:
+  push:
+    branches-ignore:
+      - "main"
+      - "develop"
+    tags-ignore:
+      - "**"
+    paths:
+      - "backoffice-service/**"
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yaml
+    with:
+      project-path: backoffice-service
+      maven-build: true

@@ -17,6 +17,10 @@ on:
       upload-image:
         description: Whether to upload the Docker image
         type: boolean
+    secrets:
+      github-token:
+        description: GitHub token for authentication
+        required: true
   workflow_dispatch:
     inputs: *workflow_call_inputs
 permissions:
@@ -41,7 +45,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.github-token }}
       - name: Extract metadata for Docker
         id: docker-metadata
         uses: docker/metadata-action@v6.2.0

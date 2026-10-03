@@ -9,9 +9,6 @@ on:
       - ".github/workflows/**"
       - "backoffice-service/**"
   workflow_dispatch:
-permissions:
-  contents: read
-  packages: write
 
 jobs:
   build:
@@ -22,38 +19,13 @@ jobs:
       maven-build: true
       upload-artifact: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
 
-  docker-build-push:
-    name: Docker Build and Push
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+  docker:
+    name: Docker
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
     needs: build
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-      - name: Download artifact
-        uses: actions/download-artifact@v8.0.1
-        with:
-          artifact-ids: ${{ needs.build.outputs.maven-build-artifact-id }}
-          path: backoffice-service
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata for Docker
-        id: docker-metadata
-        uses: docker/metadata-action@v6.2.0
-        with:
-          images: ghcr.io/${{ github.repository }}/backoffice-service
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v7.4.0
-        with:
-          context: backoffice-service
-          push: true
-          tags: ${{ steps.docker-metadata.outputs.tags }}
-          labels: ${{ steps.docker-metadata.outputs.labels }}
-          build-args: |
-            SERVICE_PORT=${{ vars.SERVICE_PORT }}
+    uses: ./.github/workflows/docker.yaml
+    with:
+      project-path: backoffice-service
+      build-artifact-id: ${{ needs.build.outputs.maven-build-artifact-id }}
+      image-name: ${{ github.repository }}/backoffice-service
+      upload-image: true

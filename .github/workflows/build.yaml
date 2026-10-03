@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: maven-build-artifact
-          path: target/
+          path: ${{ inputs.project-path }}/target
           if-no-files-found: error
           overwrite: true
     outputs:

@@ -9,6 +9,9 @@ on:
       - ".github/workflows/**"
       - "backoffice-service/**"
   workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:

@@ -49,7 +49,6 @@ jobs:
         with:
           name: maven-build-artifact
           path: |
-            ${{ inputs.project-path }}/pom.xml
             ${{ inputs.project-path }}/target
           if-no-files-found: error
           overwrite: true

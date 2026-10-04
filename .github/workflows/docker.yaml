@@ -51,6 +51,8 @@ jobs:
         uses: docker/metadata-action@v6.2.0
         with:
           images: ${{ inputs.image-name }}
+          flavor: |
+            latest=false
           tags: |
             type=sha,prefix=${{ inputs.project-version }}-,enable=true
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/develop' }}

@@ -1,0 +1,64 @@
+name: Build
+run-name: Build project at ${{ inputs.project-path }}
+on:
+  workflow_call:
+    inputs: &workflow_call_inputs
+      project-path:
+        description: Path to the project directory
+        required: true
+        type: string
+      maven-build:
+        description: Whether to run Maven build
+        type: boolean
+      upload-artifact:
+        description: Whether to upload the build artifact
+        type: boolean
+    outputs:
+      maven-build-project-version:
+        description: Project version of Maven build
+        value: ${{ jobs.maven-build.outputs.project-version }}
+      maven-build-artifact-id:
+        description: Artifact ID of Maven build
+        value: ${{ jobs.maven-build.outputs.artifact-id }}
+  workflow_dispatch:
+    inputs: *workflow_call_inputs
+permissions:
+  contents: read
+
+jobs:
+  maven-build:
+    name: Maven Build
+    if: ${{ inputs.maven-build }}
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.project-path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Java JDK
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: ${{ inputs.project-path }}/pom.xml
+      - name: Run Maven build
+        run: mvn clean verify --batch-mode --no-transfer-progress
+      - name: Get Maven project version
+        id: get-version
+        run: |
+          version=$(mvn help:evaluate --quiet --define forceStdout --define expression=project.version)
+          echo "project-version=$version" >> $GITHUB_OUTPUT
+      - name: Upload artifact
+        id: upload-artifact
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: maven-build-artifact
+          path: ${{ inputs.project-path }}/**/target # use wildcard to preserve directory structure
+          if-no-files-found: error
+          overwrite: true
+    outputs:
+      project-version: ${{ steps.get-version.outputs.project-version }}
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}

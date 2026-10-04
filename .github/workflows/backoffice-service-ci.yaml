@@ -1,0 +1,35 @@
+name: Backoffice Service CI
+on:
+  push:
+    branches-ignore:
+      - "main"
+    tags-ignore:
+      - "**"
+    paths:
+      - ".github/workflows/**"
+      - "backoffice-service/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yaml
+    with:
+      project-path: backoffice-service
+      maven-build: true
+      upload-artifact: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
+
+  docker:
+    name: Docker
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
+    needs: build
+    uses: ./.github/workflows/docker.yaml
+    with:
+      project-path: backoffice-service
+      build-artifact-id: ${{ needs.build.outputs.maven-build-artifact-id }}
+      image-name: ghcr.io/${{ github.repository }}/backoffice-service
+      project-version: ${{ needs.build.outputs.maven-build-project-version }}
+      upload-image: true

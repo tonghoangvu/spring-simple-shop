@@ -12,7 +12,7 @@
   </parent>
   <groupId>io.github.tonghoangvu.springsimpleshop</groupId>
   <artifactId>backoffice-service</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>backoffice-service</name>
   <description/>
   <url/>

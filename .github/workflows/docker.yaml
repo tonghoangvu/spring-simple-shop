@@ -14,6 +14,10 @@ on:
         description: Name of Docker image
         required: true
         type: string
+      project-version:
+        description: Current project version
+        required: true
+        type: string
       upload-image:
         description: Whether to upload the Docker image
         type: boolean
@@ -47,7 +51,9 @@ jobs:
         uses: docker/metadata-action@v6.2.0
         with:
           images: ${{ inputs.image-name }}
-          tags: type=sha,prefix=
+          tags: |
+            type=sha,prefix=${{ inputs.project-version }}-,enable=true
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/develop' }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v7.4.0
         with:

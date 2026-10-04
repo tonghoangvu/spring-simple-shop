@@ -31,4 +31,5 @@ jobs:
       project-path: backoffice-service
       build-artifact-id: ${{ needs.build.outputs.maven-build-artifact-id }}
       image-name: ghcr.io/${{ github.repository }}/backoffice-service
+      project-version: ${{ needs.build.outputs.maven-build-project-version }}
       upload-image: true

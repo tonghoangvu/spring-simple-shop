@@ -14,6 +14,9 @@ on:
         description: Whether to upload the build artifact
         type: boolean
     outputs:
+      maven-build-project-version:
+        description: Project version of Maven build
+        value: ${{ jobs.maven-build.outputs.project-version }}
       maven-build-artifact-id:
         description: Artifact ID of Maven build
         value: ${{ jobs.maven-build.outputs.artifact-id }}
@@ -42,6 +45,11 @@ jobs:
           cache-dependency-path: ${{ inputs.project-path }}/pom.xml
       - name: Run Maven build
         run: mvn clean verify --batch-mode --no-transfer-progress
+      - name: Get Maven project version
+        id: get-version
+        run: |
+          version=$(mvn help:evaluate --quiet --define forceStdout --define expression=project.version)
+          echo "project-version=$version" >> $GITHUB_OUTPUT
       - name: Upload artifact
         id: upload-artifact
         if: ${{ inputs.upload-artifact }}
@@ -52,4 +60,5 @@ jobs:
           if-no-files-found: error
           overwrite: true
     outputs:
+      project-version: ${{ steps.get-version.outputs.project-version }}
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}

@@ -32,5 +32,3 @@ jobs:
       build-artifact-id: ${{ needs.build.outputs.maven-build-artifact-id }}
       image-name: ${{ github.repository }}/backoffice-service
       upload-image: true
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}

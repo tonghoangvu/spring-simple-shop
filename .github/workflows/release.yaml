@@ -1,0 +1,50 @@
+name: Release
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deploy environment (dev, nonprod)
+        required: true
+        type: string
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    name: Metadata
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Extract tag
+        id: extract-tag
+        run: |
+          IFS='/' read -r -a parts <<< '${{ github.ref_name }}'
+          echo "project-name=${parts[0]}" >> ${GITHUB_OUTPUT}
+          echo "project-version=${parts[1]}" >> ${GITHUB_OUTPUT}
+    outputs:
+      project-name: ${{ steps.extract-tag.outputs.project-name }}
+      project-version: ${{ steps.extract-tag.outputs.project-version }}
+      environment-list: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.environment) || '["dev", "nonprod"]') }}
+
+  backoffice-service:
+    name: Backoffice Service (${{ matrix.environment }})
+    if: ${{ startsWith(github.ref, 'refs/tags/backoffice-service/') }}
+    needs:
+      - metadata
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        environment: ${{ needs.metadata.outputs.environment-list }}
+    environment: ${{ matrix.environment }}
+    steps:
+      - name: Deploy (dry run)
+        run: |
+          name='${{ needs.metadata.outputs.project-name }}'
+          version='${{ needs.metadata.outputs.project-version }}'
+          echo "Deploying project ${name} version ${version} to ${{ matrix.environment }}..."

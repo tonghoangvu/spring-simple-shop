@@ -1,0 +1,92 @@
+name: Backoffice Service
+on:
+  push:
+    branches-ignore:
+      - 'main'
+    tags-ignore:
+      - '**'
+    paths:
+      - '.github/**' # test
+      - 'backoffice-service/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  maven:
+    name: Maven
+    uses: ./.github/workflows/maven.yaml
+    with:
+      project-path: './backoffice-service'
+      skip-check: ${{ github.event_name == 'workflow_dispatch' }}
+      upload-artifact: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
+
+  docker:
+    name: Docker
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop') }}
+    needs:
+      - maven
+    uses: ./.github/workflows/docker.yaml
+    with:
+      project-path: './backoffice-service'
+      project-version: ${{ needs.maven.outputs.project-version }}
+      release-version: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+      build-artifact-id: ${{ needs.maven.outputs.build-artifact-id }}
+      container-registry: ghcr.io
+      container-registry-username: ${{ github.actor }}
+      image-name: ghcr.io/${{ github.repository }}/backoffice-service
+      upload-image: true
+    secrets:
+      container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  release-tag:
+    name: Release Tag
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+    needs:
+      - maven
+      - docker
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Create and push tag
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag 'backoffice-service/${{ needs.maven.outputs.project-version }}' --annotate --message ''
+          git push --tags
+
+  next-version:
+    name: Next Version
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+    needs:
+      - docker
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Java JDK
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: './backoffice-service/pom.xml'
+      - name: Use next minor version
+        id: update-version
+        env:
+          MAVEN_ARGS: '--batch-mode --no-transfer-progress'
+        run: |
+          mvn build-helper:parse-version versions:set-property \
+            --define property=revision \
+            --define newVersion=${parsedVersion.majorVersion}.${parsedVersion.nextMinorVersion}.0
+          version=$(mvn help:evaluate --quiet --define forceStdout --define expression=project.version)
+          echo "updated-version=${version}" >> ${GITHUB_OUTPUT}
+      - name: Commit and push version change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 'pom.xml'
+          git commit --message 'chore(backoffice-service): update version to ${{ steps.update-version.outputs.updated-version }}'
+          git push

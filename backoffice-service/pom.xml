@@ -12,7 +12,7 @@
   </parent>
   <groupId>io.github.tonghoangvu.springsimpleshop</groupId>
   <artifactId>backoffice-service</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>${revision}</version>
   <name>backoffice-service</name>
   <description/>
   <url/>
@@ -29,6 +29,7 @@
     <url/>
   </scm>
   <properties>
+    <revision>0.2.0</revision>
     <java.version>17</java.version>
     <springdoc-openapi.version>3.1.0</springdoc-openapi.version>
     <fmt-maven-plugin.version>2.29</fmt-maven-plugin.version>
@@ -136,6 +137,13 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>com.spotify.fmt</groupId>

@@ -1,0 +1,69 @@
+name: Maven
+on:
+  workflow_call:
+    inputs:
+      project-path:
+        description: Path to project directory
+        required: true
+        type: string
+        default: '.'
+      skip-check:
+        description: Whether to skip build check
+        type: boolean
+      upload-artifact:
+        description: Whether to upload build artifact
+        type: boolean
+    outputs:
+      project-version:
+        description: Current project version
+        value: ${{ jobs.maven-build.outputs.project-version }}
+      build-artifact-id:
+        description: Build artifact ID
+        value: ${{ jobs.maven-build.outputs.artifact-id }}
+permissions:
+  contents: read
+
+jobs:
+  maven-build:
+    name: Maven Build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.project-path }}
+    env:
+      MAVEN_ARGS: '--batch-mode --no-transfer-progress'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Java JDK
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: ${{ inputs.project-path }}/pom.xml
+      - name: Run Maven build
+        if: ${{ !inputs.skip-check }}
+        run: |
+          mvn clean verify
+      - name: Run Maven build (skip check)
+        if: ${{ inputs.skip-check }}
+        run: |
+          mvn clean package --define maven.test.skip=true
+      - name: Get project version
+        id: get-version
+        run: |
+          version=$(mvn help:evaluate --quiet --define forceStdout --define expression=project.version)
+          echo "project-version=${version}" >> ${GITHUB_OUTPUT}
+      - name: Upload artifact
+        id: upload-artifact
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: maven-build-artifact
+          path: ${{ inputs.project-path }}/**/target # use wildcard to preserve directory structure
+          if-no-files-found: error
+          overwrite: true
+    outputs:
+      project-version: ${{ steps.get-version.outputs.project-version }}
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}

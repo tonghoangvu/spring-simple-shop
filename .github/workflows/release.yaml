@@ -28,7 +28,7 @@ jobs:
     outputs:
       project-name: ${{ steps.extract-tag.outputs.project-name }}
       project-version: ${{ steps.extract-tag.outputs.project-version }}
-      environment-list: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.environment) || '["dev", "nonprod"]') }}
+      environment-list-json: ${{ github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.environment) || '["dev", "nonprod"]' }}
 
   backoffice-service:
     name: Backoffice Service (${{ matrix.environment }})
@@ -40,7 +40,7 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        environment: ${{ needs.metadata.outputs.environment-list }}
+        environment: ${{ fromJSON(needs.metadata.outputs.environment-list-json) }}
     environment: ${{ matrix.environment }}
     steps:
       - name: Deploy (dry run)

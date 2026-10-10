@@ -6,7 +6,6 @@ on:
     tags-ignore:
       - '**'
     paths:
-      - '.github/**' # test
       - 'backoffice-service/**'
   workflow_dispatch:
 permissions:

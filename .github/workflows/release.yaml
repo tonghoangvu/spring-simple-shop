@@ -47,4 +47,4 @@ jobs:
         run: |
           name='${{ needs.metadata.outputs.project-name }}'
           version='${{ needs.metadata.outputs.project-version }}'
-          echo "Deploying project ${name} version ${version} to ${{ matrix.environment }}..."
+          echo "Deployed project ${name} version ${version} to ${{ matrix.environment }} environment"
